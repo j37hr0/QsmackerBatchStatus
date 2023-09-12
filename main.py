@@ -1,3 +1,4 @@
+import os
 import pymssql
 import pandas
 from decouple import config
@@ -9,6 +10,8 @@ sqlpass = config('SQLPASS')
 batchName = input("Enter the batch name (exact name works better): ")
 openBatchIDs = []
 completeBatchIDs = []
+allBatchData = pandas.DataFrame()
+
 #Added tag 103337 #2
 #Added tag 103337 #1
 #96000000006021FF 88821 #2
@@ -18,13 +21,27 @@ try:
     connection = pymssql.connect(sqlserver, sqluser, sqlpass, "Qsmacker")
     cursor = connection.cursor(as_dict=True)
     cursor.execute(f"exec GetBatchStatus '{batchName}'")
-    for row in cursor:
-        print(row["batchStatusId"])
-        if row["batchStatusId"] == 1:
-            openBatchIDs.append(row["id"])
-        elif row["batchStatusID"] == 3:
-            completeBatchIDs.append({row["id"], row["refNo"]})
-    print(openBatchIDs)
-    print(completeBatchIDs)
+    allBatchData = pandas.DataFrame(cursor.fetchall())
+    print(allBatchData)
+    for row in allBatchData.itertuples():
+        if row.batchStatusId == 1:
+            openBatchIDs.append(row.id)
+            print(f"Batch is open for {row.refNo}")
+        elif row.batchStatusId == 3:
+            completeBatchIDs.append({row.id, row.refNo})
+        elif row.batchStatusId == 4:
+            print(f"Batch failed for {row.refNo}")
+
+#we can add some logic to check if open machines is less than the total machines in the batch, therefore seeing if the batch is still running
 except Exception as e:
     print("couldn't connect", e)
+
+
+
+
+    # if row['batchStatusId'] == 1:
+    #     openBatchIDs.append(row["id"])
+    # elif row['batchStatusId'] == 3:
+    #     completeBatchIDs.append({row["id"], row["refNo"]})
+    # elif row["batchStatusID"] == 4:
+    #     print(f"Batch failed for {row['refNo']}")
