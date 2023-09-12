@@ -29,10 +29,11 @@ try:
             print(f"Batch is open for {row.refNo}")
         elif row.batchStatusId == 3:
             completeBatchIDs.append({row.id, row.refNo})
+            print(f"Batch is complete for {row.refNo}")
         elif row.batchStatusId == 4:
             print(f"Batch failed for {row.refNo}")
 
-#we can add some logic to check if open machines is less than the total machines in the batch, therefore seeing if the batch is still running
+#TODO we can add some logic to check if open machines is less than the total machines in the batch, therefore seeing if the batch is still running
 except Exception as e:
     print("couldn't connect", e)
 
